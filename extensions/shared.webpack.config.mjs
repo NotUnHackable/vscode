@@ -48,7 +48,8 @@ function withNodeDefaults(/**@type WebpackConfig & { context: string }*/extConfi
 					loader: 'ts-loader',
 					options: tsLoaderOptions
 				}, {
-					loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
+					// disable mangling for now, SEE https://github.com/microsoft/vscode/issues/204692
+					// loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
 					options: {
 						configFile: path.join(extConfig.context, 'tsconfig.json')
 					},
@@ -136,7 +137,8 @@ function withBrowserDefaults(/**@type WebpackConfig & { context: string }*/extCo
 						}
 					},
 					{
-						loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
+						// disable mangling for now, SEE https://github.com/microsoft/vscode/issues/204692
+						// loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
 						options: {
 							configFile: path.join(extConfig.context, additionalOptions?.configFile ?? 'tsconfig.json')
 						},
