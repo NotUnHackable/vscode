@@ -26,7 +26,7 @@ steps:
       KeyVaultName: vscode-build-secrets
       SecretsFilter: "github-distro-mixin-password"
 
-  - powershell: npm _run-build-script build/setup-npm-registry.js $env:NPM_REGISTRY
+  - powershell: npm run _run-build-script build/setup-npm-registry.js $env:NPM_REGISTRY
     condition: and(succeeded(), ne(variables['NPM_REGISTRY'], 'none'))
     displayName: Setup NPM Registry
 
@@ -92,10 +92,10 @@ steps:
     retryCountOnTaskFailure: 5
     displayName: Install dependencies
 
-  - script: npm _run-build-script build/azure-pipelines/distro/mixin-npm
+  - script: npm run _run-build-script build/azure-pipelines/distro/mixin-npm
     displayName: Mixin distro node modules
 
-  - script: npm _run-build-script build/azure-pipelines/distro/mixin-quality
+  - script: npm run _run-build-script build/azure-pipelines/distro/mixin-quality
     displayName: Mixin distro quality
     env:
       VSCODE_QUALITY: ${{ parameters.VSCODE_QUALITY }}
