@@ -167,9 +167,9 @@ steps:
   - template: ../../common/install-builtin-extensions.yml@self
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - script: npm run _node-build-script build/lib/policies/policyGenerator build/lib/policies/policyData.jsonc linux
-        displayName: Generate policy definitions
-        retryCountOnTaskFailure: 3
+    - script: npm run _node-build-script build/lib/policies/policyGenerator build/lib/policies/policyData.jsonc linux
+      displayName: Generate policy definitions
+      retryCountOnTaskFailure: 3
 
   - script: |
       set -e
@@ -183,20 +183,20 @@ steps:
     displayName: Build client
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: $(ARTIFACT_PREFIX)vscode_cli_linux_$(VSCODE_ARCH)_cli
-          patterns: "**"
-          path: $(Build.ArtifactStagingDirectory)/cli
-        displayName: Download VS Code CLI
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: $(ARTIFACT_PREFIX)vscode_cli_linux_$(VSCODE_ARCH)_cli
+        patterns: "**"
+        path: $(Build.ArtifactStagingDirectory)/cli
+      displayName: Download VS Code CLI
 
-      - script: |
-          set -e
-          tar -xzvf $(Build.ArtifactStagingDirectory)/cli/*.tar.gz -C $(Build.ArtifactStagingDirectory)/cli
-          CLI_APP_NAME=$(node -p "require(\"$(agent.builddirectory)/VSCode-linux-$(VSCODE_ARCH)/resources/app/product.json\").tunnelApplicationName")
-          APP_NAME=$(node -p "require(\"$(agent.builddirectory)/VSCode-linux-$(VSCODE_ARCH)/resources/app/product.json\").applicationName")
-          mv $(Build.ArtifactStagingDirectory)/cli/$APP_NAME $(agent.builddirectory)/VSCode-linux-$(VSCODE_ARCH)/bin/$CLI_APP_NAME
-        displayName: Mix in CLI
+    - script: |
+        set -e
+        tar -xzvf $(Build.ArtifactStagingDirectory)/cli/*.tar.gz -C $(Build.ArtifactStagingDirectory)/cli
+        CLI_APP_NAME=$(node -p "require(\"$(agent.builddirectory)/VSCode-linux-$(VSCODE_ARCH)/resources/app/product.json\").tunnelApplicationName")
+        APP_NAME=$(node -p "require(\"$(agent.builddirectory)/VSCode-linux-$(VSCODE_ARCH)/resources/app/product.json\").applicationName")
+        mv $(Build.ArtifactStagingDirectory)/cli/$APP_NAME $(agent.builddirectory)/VSCode-linux-$(VSCODE_ARCH)/bin/$CLI_APP_NAME
+      displayName: Mix in CLI
 
   - script: |
       set -e
@@ -232,180 +232,180 @@ steps:
     displayName: Build server (web)
 
   - ${{ if or(eq(parameters.VSCODE_ARCH, 'x64'), eq(parameters.VSCODE_ARCH, 'arm64')) }}:
-      - script: |
-          set -e
+    - script: |
+        set -e
 
-          EXPECTED_GLIBC_VERSION="2.28" \
-          EXPECTED_GLIBCXX_VERSION="3.4.25" \
-          VSCODE_SYSROOT_DIR="$(Build.SourcesDirectory)/.build/sysroots/glibc-2.28-gcc-8.5.0" \
-          ./build/azure-pipelines/linux/verify-glibc-requirements.sh
-        env:
-          SEARCH_PATH: $(SERVER_UNARCHIVE_PATH)
-          npm_config_arch: $(NPM_ARCH)
-          VSCODE_ARCH: $(VSCODE_ARCH)
-        displayName: Check GLIBC and GLIBCXX dependencies in server archive
+        EXPECTED_GLIBC_VERSION="2.28" \
+        EXPECTED_GLIBCXX_VERSION="3.4.25" \
+        VSCODE_SYSROOT_DIR="$(Build.SourcesDirectory)/.build/sysroots/glibc-2.28-gcc-8.5.0" \
+        ./build/azure-pipelines/linux/verify-glibc-requirements.sh
+      env:
+        SEARCH_PATH: $(SERVER_UNARCHIVE_PATH)
+        npm_config_arch: $(NPM_ARCH)
+        VSCODE_ARCH: $(VSCODE_ARCH)
+      displayName: Check GLIBC and GLIBCXX dependencies in server archive
 
   - ${{ else }}:
-      - script: |
-          set -e
+    - script: |
+        set -e
 
-          EXPECTED_GLIBC_VERSION="2.28" \
-          EXPECTED_GLIBCXX_VERSION="3.4.26" \
-          VSCODE_SYSROOT_DIR="$(Build.SourcesDirectory)/.build/sysroots/glibc-2.28-gcc-8.5.0" \
-          ./build/azure-pipelines/linux/verify-glibc-requirements.sh
-        env:
-          SEARCH_PATH: $(SERVER_UNARCHIVE_PATH)
-          npm_config_arch: $(NPM_ARCH)
-          VSCODE_ARCH: $(VSCODE_ARCH)
-        displayName: Check GLIBC and GLIBCXX dependencies in server archive
+        EXPECTED_GLIBC_VERSION="2.28" \
+        EXPECTED_GLIBCXX_VERSION="3.4.26" \
+        VSCODE_SYSROOT_DIR="$(Build.SourcesDirectory)/.build/sysroots/glibc-2.28-gcc-8.5.0" \
+        ./build/azure-pipelines/linux/verify-glibc-requirements.sh
+      env:
+        SEARCH_PATH: $(SERVER_UNARCHIVE_PATH)
+        npm_config_arch: $(NPM_ARCH)
+        VSCODE_ARCH: $(VSCODE_ARCH)
+      displayName: Check GLIBC and GLIBCXX dependencies in server archive
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - script: |
-          set -e
-          npm run gulp "vscode-linux-$(VSCODE_ARCH)-prepare-deb"
-        env:
-          GITHUB_TOKEN: "$(github-distro-mixin-password)"
-        displayName: Prepare deb package
+    - script:  |
+        set -e
+        npm run gulp "vscode-linux-$(VSCODE_ARCH)-prepare-deb"
+      env:
+        GITHUB_TOKEN: "$(github-distro-mixin-password)"
+      displayName: Prepare deb package
 
-      - script: |
-          set -e
-          npm run gulp "vscode-linux-$(VSCODE_ARCH)-build-deb"
-          mkdir -p .build/linux/deb
-          cp .build/linux/deb/*/deb/*.deb .build/linux/deb/
-          file_output=$(file $(ls .build/linux/deb/*.deb))
-          if [[ "$file_output" != *"data compression xz"* ]]; then
-            echo "Error: unknown compression. $file_output"
-            exit 1
-          fi
-          echo "##vso[task.setvariable variable=DEB_PATH]$(ls .build/linux/deb/*.deb)"
-          echo "##vso[task.setvariable variable=DEB_PACKAGE_NAME]$(basename $(ls .build/linux/deb/*.deb))"
-        displayName: Build deb package
+    - script:  |
+        set -e
+        npm run gulp "vscode-linux-$(VSCODE_ARCH)-build-deb"
+        mkdir -p .build/linux/deb
+        cp .build/linux/deb/*/deb/*.deb .build/linux/deb/
+        file_output=$(file $(ls .build/linux/deb/*.deb))
+        if [[ "$file_output" != *"data compression xz"* ]]; then
+          echo "Error: unknown compression. $file_output"
+          exit 1
+        fi
+        echo "##vso[task.setvariable variable=DEB_PATH]$(ls .build/linux/deb/*.deb)"
+        echo "##vso[task.setvariable variable=DEB_PACKAGE_NAME]$(basename $(ls .build/linux/deb/*.deb))"
+      displayName: Build deb package
 
-      - script: |
-          set -e
-          TRIPLE=""
-          if [ "$VSCODE_ARCH" == "x64" ]; then
-            TRIPLE="x86_64-linux-gnu"
-          elif [ "$VSCODE_ARCH" == "arm64" ]; then
-            TRIPLE="aarch64-linux-gnu"
-          elif [ "$VSCODE_ARCH" == "armhf" ]; then
-            TRIPLE="arm-rpi-linux-gnueabihf"
-          fi
-          export VSCODE_SYSROOT_DIR=$(Build.SourcesDirectory)/.build/sysroots/glibc-2.28-gcc-10.5.0
-          export STRIP="$VSCODE_SYSROOT_DIR/$TRIPLE/$TRIPLE/bin/strip"
-          npm run gulp "vscode-linux-$(VSCODE_ARCH)-prepare-rpm"
-        env:
-          VSCODE_ARCH: $(VSCODE_ARCH)
-        displayName: Prepare rpm package
+    - script:  |
+        set -e
+        TRIPLE=""
+        if [ "$VSCODE_ARCH" == "x64" ]; then
+          TRIPLE="x86_64-linux-gnu"
+        elif [ "$VSCODE_ARCH" == "arm64" ]; then
+          TRIPLE="aarch64-linux-gnu"
+        elif [ "$VSCODE_ARCH" == "armhf" ]; then
+          TRIPLE="arm-rpi-linux-gnueabihf"
+        fi
+        export VSCODE_SYSROOT_DIR=$(Build.SourcesDirectory)/.build/sysroots/glibc-2.28-gcc-10.5.0
+        export STRIP="$VSCODE_SYSROOT_DIR/$TRIPLE/$TRIPLE/bin/strip"
+        npm run gulp "vscode-linux-$(VSCODE_ARCH)-prepare-rpm"
+      env:
+        VSCODE_ARCH: $(VSCODE_ARCH)
+      displayName: Prepare rpm package
 
-      - script: |
-          set -e
-          npm run gulp "vscode-linux-$(VSCODE_ARCH)-build-rpm"
-          mkdir -p .build/linux/rpm
-          cp .build/linux/rpm/*/*.rpm .build/linux/rpm/
-          echo "##vso[task.setvariable variable=RPM_PATH]$(ls .build/linux/rpm/*.rpm)"
-          echo "##vso[task.setvariable variable=RPM_PACKAGE_NAME]$(basename $(ls .build/linux/rpm/*.rpm))"
-        displayName: Build rpm package
+    - script:  |
+        set -e
+        npm run gulp "vscode-linux-$(VSCODE_ARCH)-build-rpm"
+        mkdir -p .build/linux/rpm
+        cp .build/linux/rpm/*/*.rpm .build/linux/rpm/
+        echo "##vso[task.setvariable variable=RPM_PATH]$(ls .build/linux/rpm/*.rpm)"
+        echo "##vso[task.setvariable variable=RPM_PACKAGE_NAME]$(basename $(ls .build/linux/rpm/*.rpm))"
+      displayName: Build rpm package
 
-      - ${{ if eq(parameters.VSCODE_ARCH, 'x64') }}:
-          - task: Docker@1
-            inputs:
-              azureSubscriptionEndpoint: vscode
-              azureContainerRegistry: vscodehub.azurecr.io
-              command: login
-            displayName: Login to Container Registry
-
-          - ${{ if eq(parameters.VSCODE_BUILD_LINUX_SNAP, true) }}:
-              - script: |
-                  set -e
-                  npm run gulp "vscode-linux-$(VSCODE_ARCH)-prepare-snap"
-                  sudo -E docker run -e VSCODE_ARCH -e VSCODE_QUALITY -v $(pwd):/work -w /work vscodehub.azurecr.io/vscode-linux-build-agent:snapcraft-x64 /bin/bash -c "./build/azure-pipelines/linux/build-snap.sh"
-
-                  SNAP_ROOT="$(pwd)/.build/linux/snap/$(VSCODE_ARCH)"
-                  SNAP_EXTRACTED_PATH=$(find $SNAP_ROOT -maxdepth 1 -type d -name 'code-*')
-
-                  mkdir -p .build/linux/snap
-                  cp $(find $SNAP_ROOT -maxdepth 1 -type f -name '*.snap') .build/linux/snap/
-
-                  # SBOM tool doesn't like recursive symlinks
-                  sudo find $SNAP_EXTRACTED_PATH -type l -delete
-
-                  echo "##vso[task.setvariable variable=SNAP_EXTRACTED_PATH]$SNAP_EXTRACTED_PATH"
-                  echo "##vso[task.setvariable variable=SNAP_PATH]$(ls .build/linux/snap/*.snap)"
-                  echo "##vso[task.setvariable variable=SNAP_PACKAGE_NAME]$(basename $(ls .build/linux/snap/*.snap))"
-                env:
-                  VSCODE_ARCH: $(VSCODE_ARCH)
-                displayName: Build snap package
-
-      - task: UseDotNet@2
+    - ${{ if eq(parameters.VSCODE_ARCH, 'x64') }}:
+      - task: Docker@1
         inputs:
-          version: 6.x
+          azureSubscriptionEndpoint: vscode
+          azureContainerRegistry: vscodehub.azurecr.io
+          command: login
+        displayName: Login to Container Registry
 
-      - task: EsrpCodeSigning@5
-        inputs:
-          UseMSIAuthentication: true
-          ConnectedServiceName: vscode-esrp
-          AppRegistrationClientId: $(ESRP_CLIENT_ID)
-          AppRegistrationTenantId: $(ESRP_TENANT_ID)
-          AuthAKVName: vscode-esrp
-          AuthSignCertName: esrp-sign
-          FolderPath: .
-          Pattern: noop
-        displayName: "Install ESRP Tooling"
+      - ${{ if eq(parameters.VSCODE_BUILD_LINUX_SNAP, true) }}:
+        - script: |
+            set -e
+            npm run gulp "vscode-linux-$(VSCODE_ARCH)-prepare-snap"
+            sudo -E docker run -e VSCODE_ARCH -e VSCODE_QUALITY -v $(pwd):/work -w /work vscodehub.azurecr.io/vscode-linux-build-agent:snapcraft-x64 /bin/bash -c "./build/azure-pipelines/linux/build-snap.sh"
 
-      - pwsh: |
-          . build/azure-pipelines/win32/exec.ps1
-          $ErrorActionPreference = "Stop"
-          $EsrpCodeSigningTool = (gci -directory -filter EsrpCodeSigning_* $(Agent.RootDirectory)/_tasks | Select-Object -last 1).FullName
-          $Version = (gci -directory $EsrpCodeSigningTool | Select-Object -last 1).FullName
-          echo "##vso[task.setvariable variable=EsrpCliDllPath]$Version/net6.0/esrpcli.dll"
-        displayName: Find ESRP CLI
+            SNAP_ROOT="$(pwd)/.build/linux/snap/$(VSCODE_ARCH)"
+            SNAP_EXTRACTED_PATH=$(find $SNAP_ROOT -maxdepth 1 -type d -name 'code-*')
 
-      - script: npx deemon --detach --wait npm run _node-build-script build/azure-pipelines/linux/codesign.js
-        env:
-          EsrpCliDllPath: $(EsrpCliDllPath)
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-        displayName: ✍️ Codesign deb & rpm
+            mkdir -p .build/linux/snap
+            cp $(find $SNAP_ROOT -maxdepth 1 -type f -name '*.snap') .build/linux/snap/
+
+            # SBOM tool doesn't like recursive symlinks
+            sudo find $SNAP_EXTRACTED_PATH -type l -delete
+
+            echo "##vso[task.setvariable variable=SNAP_EXTRACTED_PATH]$SNAP_EXTRACTED_PATH"
+            echo "##vso[task.setvariable variable=SNAP_PATH]$(ls .build/linux/snap/*.snap)"
+            echo "##vso[task.setvariable variable=SNAP_PACKAGE_NAME]$(basename $(ls .build/linux/snap/*.snap))"
+          env:
+            VSCODE_ARCH: $(VSCODE_ARCH)
+          displayName: Build snap package
+
+    - task: UseDotNet@2
+      inputs:
+        version: 6.x
+
+    - task: EsrpCodeSigning@5
+      inputs:
+        UseMSIAuthentication: true
+        ConnectedServiceName: vscode-esrp
+        AppRegistrationClientId: $(ESRP_CLIENT_ID)
+        AppRegistrationTenantId: $(ESRP_TENANT_ID)
+        AuthAKVName: vscode-esrp
+        AuthSignCertName: esrp-sign
+        FolderPath: .
+        Pattern: noop
+      displayName: 'Install ESRP Tooling'
+
+    - pwsh: |
+        . build/azure-pipelines/win32/exec.ps1
+        $ErrorActionPreference = "Stop"
+        $EsrpCodeSigningTool = (gci -directory -filter EsrpCodeSigning_* $(Agent.RootDirectory)/_tasks | Select-Object -last 1).FullName
+        $Version = (gci -directory $EsrpCodeSigningTool | Select-Object -last 1).FullName
+        echo "##vso[task.setvariable variable=EsrpCliDllPath]$Version/net6.0/esrpcli.dll"
+      displayName: Find ESRP CLI
+
+    - script: npx deemon --detach --wait npm run _node-build-script build/azure-pipelines/linux/codesign.js
+      env:
+        EsrpCliDllPath: $(EsrpCliDllPath)
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      displayName: ✍️ Codesign deb & rpm
 
   - ${{ if or(eq(parameters.VSCODE_RUN_ELECTRON_TESTS, true), eq(parameters.VSCODE_RUN_BROWSER_TESTS, true), eq(parameters.VSCODE_RUN_REMOTE_TESTS, true)) }}:
-      - template: product-build-linux-test.yml@self
-        parameters:
-          VSCODE_RUN_ELECTRON_TESTS: ${{ parameters.VSCODE_RUN_ELECTRON_TESTS }}
-          VSCODE_RUN_BROWSER_TESTS: ${{ parameters.VSCODE_RUN_BROWSER_TESTS }}
-          VSCODE_RUN_REMOTE_TESTS: ${{ parameters.VSCODE_RUN_REMOTE_TESTS }}
+    - template: product-build-linux-test.yml@self
+      parameters:
+        VSCODE_RUN_ELECTRON_TESTS: ${{ parameters.VSCODE_RUN_ELECTRON_TESTS }}
+        VSCODE_RUN_BROWSER_TESTS: ${{ parameters.VSCODE_RUN_BROWSER_TESTS }}
+        VSCODE_RUN_REMOTE_TESTS: ${{ parameters.VSCODE_RUN_REMOTE_TESTS }}
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - script: npx deemon --attach npm run _node-build-script build/azure-pipelines/linux/codesign.js
-        condition: succeededOrFailed()
-        displayName: "✍️ Post-job: Codesign deb & rpm"
+    - script: npx deemon --attach npm run _node-build-script build/azure-pipelines/linux/codesign.js
+      condition: succeededOrFailed()
+      displayName: "✍️ Post-job: Codesign deb & rpm"
 
-      - script: |
-          set -e
+    - script: |
+        set -e
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/client
-          mv $(CLIENT_PATH) $(Build.ArtifactStagingDirectory)/out/client/$(CLIENT_ARCHIVE_NAME)
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/client
+        mv $(CLIENT_PATH) $(Build.ArtifactStagingDirectory)/out/client/$(CLIENT_ARCHIVE_NAME)
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/server
-          mv $(SERVER_PATH) $(Build.ArtifactStagingDirectory)/out/server/$(basename $(SERVER_PATH))
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/server
+        mv $(SERVER_PATH) $(Build.ArtifactStagingDirectory)/out/server/$(basename $(SERVER_PATH))
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/web
-          mv $(WEB_PATH) $(Build.ArtifactStagingDirectory)/out/web/$(basename $(WEB_PATH))
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/web
+        mv $(WEB_PATH) $(Build.ArtifactStagingDirectory)/out/web/$(basename $(WEB_PATH))
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/deb
-          mv $(DEB_PATH) $(Build.ArtifactStagingDirectory)/out/deb/$(DEB_PACKAGE_NAME)
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/deb
+        mv $(DEB_PATH) $(Build.ArtifactStagingDirectory)/out/deb/$(DEB_PACKAGE_NAME)
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/rpm
-          mv $(RPM_PATH) $(Build.ArtifactStagingDirectory)/out/rpm/$(RPM_PACKAGE_NAME)
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/rpm
+        mv $(RPM_PATH) $(Build.ArtifactStagingDirectory)/out/rpm/$(RPM_PACKAGE_NAME)
 
-          if [ -n "$SNAP_PATH" ]; then
-            mkdir -p $(Build.ArtifactStagingDirectory)/out/snap
-            mv $(SNAP_PATH) $(Build.ArtifactStagingDirectory)/out/snap/$(SNAP_PACKAGE_NAME)
-          fi
+        if [ -n "$SNAP_PATH" ]; then
+          mkdir -p $(Build.ArtifactStagingDirectory)/out/snap
+          mv $(SNAP_PATH) $(Build.ArtifactStagingDirectory)/out/snap/$(SNAP_PACKAGE_NAME)
+        fi
 
-          # SBOM generation uses hard links which are not supported by the Linux kernel
-          # for files that have the SUID bit set, so we need to remove the SUID bit from
-          # the chrome-sandbox file.
-          sudo ls -l $(Agent.BuildDirectory)/VSCode-linux-$(VSCODE_ARCH)/chrome-sandbox
-          sudo chmod u-s $(Agent.BuildDirectory)/VSCode-linux-$(VSCODE_ARCH)/chrome-sandbox
-          sudo ls -l $(Agent.BuildDirectory)/VSCode-linux-$(VSCODE_ARCH)/chrome-sandbox
-        displayName: Move artifacts to out directory
+        # SBOM generation uses hard links which are not supported by the Linux kernel
+        # for files that have the SUID bit set, so we need to remove the SUID bit from
+        # the chrome-sandbox file.
+        sudo ls -l $(Agent.BuildDirectory)/VSCode-linux-$(VSCODE_ARCH)/chrome-sandbox
+        sudo chmod u-s $(Agent.BuildDirectory)/VSCode-linux-$(VSCODE_ARCH)/chrome-sandbox
+        sudo ls -l $(Agent.BuildDirectory)/VSCode-linux-$(VSCODE_ARCH)/chrome-sandbox
+      displayName: Move artifacts to out directory

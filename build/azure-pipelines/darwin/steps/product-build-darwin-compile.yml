@@ -118,9 +118,9 @@ steps:
   - template: ../../common/install-builtin-extensions.yml@self
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - script: npm run _node-build-script build/lib/policies/policyGenerator build/lib/policies/policyData.jsonc darwin
-        displayName: Generate policy definitions
-        retryCountOnTaskFailure: 3
+    - script: npm run _node-build-script build/lib/policies/policyGenerator build/lib/policies/policyData.jsonc darwin
+      displayName: Generate policy definitions
+      retryCountOnTaskFailure: 3
 
   - script: |
       set -e
@@ -155,152 +155,152 @@ steps:
     displayName: Build server (web)
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: unsigned_vscode_cli_darwin_$(VSCODE_ARCH)_cli
-          patterns: "**"
-          path: $(Build.ArtifactStagingDirectory)/cli
-        displayName: Download VS Code CLI
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        artifact: unsigned_vscode_cli_darwin_$(VSCODE_ARCH)_cli
+        patterns: "**"
+        path: $(Build.ArtifactStagingDirectory)/cli
+      displayName: Download VS Code CLI
 
-      - script: |
-          set -e
-          APP_ROOT="$(Agent.BuildDirectory)/VSCode-darwin-$(VSCODE_ARCH)"
-          APP_NAME="`ls $APP_ROOT | head -n 1`"
-          APP_PATH="$APP_ROOT/$APP_NAME"
-          unzip $(Build.ArtifactStagingDirectory)/cli/*.zip -d $(Build.ArtifactStagingDirectory)/cli
-          CLI_APP_NAME=$(node -p "require(\"$APP_PATH/Contents/Resources/app/product.json\").tunnelApplicationName")
-          APP_NAME=$(node -p "require(\"$APP_PATH/Contents/Resources/app/product.json\").applicationName")
-          mv "$(Build.ArtifactStagingDirectory)/cli/$APP_NAME" "$APP_PATH/Contents/Resources/app/bin/$CLI_APP_NAME"
-          chmod +x "$APP_PATH/Contents/Resources/app/bin/$CLI_APP_NAME"
-        displayName: Make CLI executable
+    - script: |
+        set -e
+        APP_ROOT="$(Agent.BuildDirectory)/VSCode-darwin-$(VSCODE_ARCH)"
+        APP_NAME="`ls $APP_ROOT | head -n 1`"
+        APP_PATH="$APP_ROOT/$APP_NAME"
+        unzip $(Build.ArtifactStagingDirectory)/cli/*.zip -d $(Build.ArtifactStagingDirectory)/cli
+        CLI_APP_NAME=$(node -p "require(\"$APP_PATH/Contents/Resources/app/product.json\").tunnelApplicationName")
+        APP_NAME=$(node -p "require(\"$APP_PATH/Contents/Resources/app/product.json\").applicationName")
+        mv "$(Build.ArtifactStagingDirectory)/cli/$APP_NAME" "$APP_PATH/Contents/Resources/app/bin/$CLI_APP_NAME"
+        chmod +x "$APP_PATH/Contents/Resources/app/bin/$CLI_APP_NAME"
+      displayName: Make CLI executable
 
-      - script: |
-          set -e
-          APP_ROOT="$(Agent.BuildDirectory)/VSCode-darwin-$(VSCODE_ARCH)"
-          APP_NAME="`ls $APP_ROOT | head -n 1`"
-          APP_PATH="$APP_ROOT/$APP_NAME" npm run _node-build-script build/darwin/verify-macho.js $(VSCODE_ARCH)
-          APP_PATH="$(Agent.BuildDirectory)/vscode-server-darwin-$(VSCODE_ARCH)" npm run _node-build-script build/darwin/verify-macho.js $(VSCODE_ARCH)
-        displayName: Verify arch of Mach-O objects
+    - script: |
+        set -e
+        APP_ROOT="$(Agent.BuildDirectory)/VSCode-darwin-$(VSCODE_ARCH)"
+        APP_NAME="`ls $APP_ROOT | head -n 1`"
+        APP_PATH="$APP_ROOT/$APP_NAME" npm run _node-build-script build/darwin/verify-macho.js $(VSCODE_ARCH)
+        APP_PATH="$(Agent.BuildDirectory)/vscode-server-darwin-$(VSCODE_ARCH)" npm run _node-build-script build/darwin/verify-macho.js $(VSCODE_ARCH)
+      displayName: Verify arch of Mach-O objects
 
-      - script: |
-          set -e
-          ARCHIVE_PATH="$(Pipeline.Workspace)/unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip"
-          mkdir -p $(dirname $ARCHIVE_PATH)
-          (cd ../VSCode-darwin-$(VSCODE_ARCH) && zip -Xry $ARCHIVE_PATH *)
-          echo "##vso[task.setvariable variable=CLIENT_PATH]$ARCHIVE_PATH"
-        condition: eq(variables['BUILT_CLIENT'], 'true')
-        displayName: Package client
+    - script: |
+        set -e
+        ARCHIVE_PATH="$(Pipeline.Workspace)/unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip"
+        mkdir -p $(dirname $ARCHIVE_PATH)
+        (cd ../VSCode-darwin-$(VSCODE_ARCH) && zip -Xry $ARCHIVE_PATH *)
+        echo "##vso[task.setvariable variable=CLIENT_PATH]$ARCHIVE_PATH"
+      condition: eq(variables['BUILT_CLIENT'], 'true')
+      displayName: Package client
 
-      - pwsh: npm run _node-build-script build/azure-pipelines/common/checkForArtifact.js CLIENT_ARCHIVE_UPLOADED unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive
-        env:
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-        displayName: Check for client artifact
+    - pwsh: npm run _node-build-script build/azure-pipelines/common/checkForArtifact.js CLIENT_ARCHIVE_UPLOADED unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive
+      env:
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      displayName: Check for client artifact
 
-      # We are publishing the unsigned client artifact before running tests
-      # since the macOS (UNIVERSAL) job is blocked waiting for the artifact.
-      - template: ../../common/publish-artifact.yml@self
-        parameters:
-          targetPath: $(CLIENT_PATH)
-          artifactName: unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive
-          displayName: Publish client archive (unsigned)
-          sbomEnabled: false
-          condition: and(ne(variables['CLIENT_PATH'], ''), eq(variables['CLIENT_ARCHIVE_UPLOADED'], 'false'))
+    # We are publishing the unsigned client artifact before running tests
+    # since the macOS (UNIVERSAL) job is blocked waiting for the artifact.
+    - template: ../../common/publish-artifact.yml@self
+      parameters:
+        targetPath: $(CLIENT_PATH)
+        artifactName: unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive
+        displayName: Publish client archive (unsigned)
+        sbomEnabled: false
+        condition: and(ne(variables['CLIENT_PATH'], ''), eq(variables['CLIENT_ARCHIVE_UPLOADED'], 'false'))
 
-      # Hardened entitlements should be set after publishing unsigned client artifacts
-      # to ensure entitlement signing doesn't modify sha that would affect universal build.
-      #
-      # Setting hardened entitlements is a requirement for:
-      # * Apple notarization
-      # * Running tests on Big Sur (because Big Sur has additional security precautions)
-      - script: |
-          set -e
-          security create-keychain -p pwd $(agent.tempdirectory)/buildagent.keychain
-          security default-keychain -s $(agent.tempdirectory)/buildagent.keychain
-          security unlock-keychain -p pwd $(agent.tempdirectory)/buildagent.keychain
-          echo "$(macos-developer-certificate)" | base64 -D > $(agent.tempdirectory)/cert.p12
-          security import $(agent.tempdirectory)/cert.p12 -k $(agent.tempdirectory)/buildagent.keychain -P "$(macos-developer-certificate-key)" -T /usr/bin/codesign
-          export CODESIGN_IDENTITY=$(security find-identity -v -p codesigning $(agent.tempdirectory)/buildagent.keychain | grep -oEi "([0-9A-F]{40})" | head -n 1)
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k pwd $(agent.tempdirectory)/buildagent.keychain
-          DEBUG=electron-osx-sign* npm run _node-build-script build/darwin/sign.js $(agent.builddirectory)
-        displayName: Set Hardened Entitlements
+    # Hardened entitlements should be set after publishing unsigned client artifacts
+    # to ensure entitlement signing doesn't modify sha that would affect universal build.
+    #
+    # Setting hardened entitlements is a requirement for:
+    # * Apple notarization
+    # * Running tests on Big Sur (because Big Sur has additional security precautions)
+    - script: |
+        set -e
+        security create-keychain -p pwd $(agent.tempdirectory)/buildagent.keychain
+        security default-keychain -s $(agent.tempdirectory)/buildagent.keychain
+        security unlock-keychain -p pwd $(agent.tempdirectory)/buildagent.keychain
+        echo "$(macos-developer-certificate)" | base64 -D > $(agent.tempdirectory)/cert.p12
+        security import $(agent.tempdirectory)/cert.p12 -k $(agent.tempdirectory)/buildagent.keychain -P "$(macos-developer-certificate-key)" -T /usr/bin/codesign
+        export CODESIGN_IDENTITY=$(security find-identity -v -p codesigning $(agent.tempdirectory)/buildagent.keychain | grep -oEi "([0-9A-F]{40})" | head -n 1)
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k pwd $(agent.tempdirectory)/buildagent.keychain
+        DEBUG=electron-osx-sign* npm run _node-build-script build/darwin/sign.js $(agent.builddirectory)
+      displayName: Set Hardened Entitlements
 
-      - script: |
-          set -e
-          ARCHIVE_PATH="$(Pipeline.Workspace)/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip"
-          mkdir -p $(dirname $ARCHIVE_PATH)
-          (cd ../VSCode-darwin-$(VSCODE_ARCH) && zip -Xry $ARCHIVE_PATH *)
-          echo "##vso[task.setvariable variable=CLIENT_PATH]$ARCHIVE_PATH"
-        condition: eq(variables['BUILT_CLIENT'], 'true')
-        displayName: Re-package client after entitlement
+    - script: |
+        set -e
+        ARCHIVE_PATH="$(Pipeline.Workspace)/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip"
+        mkdir -p $(dirname $ARCHIVE_PATH)
+        (cd ../VSCode-darwin-$(VSCODE_ARCH) && zip -Xry $ARCHIVE_PATH *)
+        echo "##vso[task.setvariable variable=CLIENT_PATH]$ARCHIVE_PATH"
+      condition: eq(variables['BUILT_CLIENT'], 'true')
+      displayName: Re-package client after entitlement
 
-      - task: UseDotNet@2
-        inputs:
-          version: 6.x
+    - task: UseDotNet@2
+      inputs:
+        version: 6.x
 
-      - task: EsrpCodeSigning@5
-        inputs:
-          UseMSIAuthentication: true
-          ConnectedServiceName: vscode-esrp
-          AppRegistrationClientId: $(ESRP_CLIENT_ID)
-          AppRegistrationTenantId: $(ESRP_TENANT_ID)
-          AuthAKVName: vscode-esrp
-          AuthSignCertName: esrp-sign
-          FolderPath: .
-          Pattern: noop
-        displayName: "Install ESRP Tooling"
+    - task: EsrpCodeSigning@5
+      inputs:
+        UseMSIAuthentication: true
+        ConnectedServiceName: vscode-esrp
+        AppRegistrationClientId: $(ESRP_CLIENT_ID)
+        AppRegistrationTenantId: $(ESRP_TENANT_ID)
+        AuthAKVName: vscode-esrp
+        AuthSignCertName: esrp-sign
+        FolderPath: .
+        Pattern: noop
+      displayName: 'Install ESRP Tooling'
 
-      - pwsh: |
-          . build/azure-pipelines/win32/exec.ps1
-          $ErrorActionPreference = "Stop"
-          $EsrpCodeSigningTool = (gci -directory -filter EsrpCodeSigning_* $(Agent.RootDirectory)/_tasks | Select-Object -last 1).FullName
-          $Version = (gci -directory $EsrpCodeSigningTool | Select-Object -last 1).FullName
-          echo "##vso[task.setvariable variable=EsrpCliDllPath]$Version/net6.0/esrpcli.dll"
-        displayName: Find ESRP CLI
+    - pwsh: |
+        . build/azure-pipelines/win32/exec.ps1
+        $ErrorActionPreference = "Stop"
+        $EsrpCodeSigningTool = (gci -directory -filter EsrpCodeSigning_* $(Agent.RootDirectory)/_tasks | Select-Object -last 1).FullName
+        $Version = (gci -directory $EsrpCodeSigningTool | Select-Object -last 1).FullName
+        echo "##vso[task.setvariable variable=EsrpCliDllPath]$Version/net6.0/esrpcli.dll"
+      displayName: Find ESRP CLI
 
-      - script: npx deemon --detach --wait npm run _node-build-script build/azure-pipelines/darwin/codesign.js
-        env:
-          EsrpCliDllPath: $(EsrpCliDllPath)
-          SYSTEM_ACCESSTOKEN: $(System.AccessToken)
-        displayName: ✍️ Codesign & Notarize
+    - script: npx deemon --detach --wait npm run _node-build-script build/azure-pipelines/darwin/codesign.js
+      env:
+        EsrpCliDllPath: $(EsrpCliDllPath)
+        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+      displayName: ✍️ Codesign & Notarize
 
   - ${{ if or(eq(parameters.VSCODE_RUN_ELECTRON_TESTS, true), eq(parameters.VSCODE_RUN_BROWSER_TESTS, true), eq(parameters.VSCODE_RUN_REMOTE_TESTS, true)) }}:
-      - template: product-build-darwin-test.yml@self
-        parameters:
-          VSCODE_RUN_ELECTRON_TESTS: ${{ parameters.VSCODE_RUN_ELECTRON_TESTS }}
-          VSCODE_RUN_BROWSER_TESTS: ${{ parameters.VSCODE_RUN_BROWSER_TESTS }}
-          VSCODE_RUN_REMOTE_TESTS: ${{ parameters.VSCODE_RUN_REMOTE_TESTS }}
+    - template: product-build-darwin-test.yml@self
+      parameters:
+        VSCODE_RUN_ELECTRON_TESTS: ${{ parameters.VSCODE_RUN_ELECTRON_TESTS }}
+        VSCODE_RUN_BROWSER_TESTS: ${{ parameters.VSCODE_RUN_BROWSER_TESTS }}
+        VSCODE_RUN_REMOTE_TESTS: ${{ parameters.VSCODE_RUN_REMOTE_TESTS }}
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-      - script: npx deemon --attach npm run _node-build-script build/azure-pipelines/darwin/codesign.js
-        condition: succeededOrFailed()
-        displayName: "Post-job: ✍️ Codesign & Notarize"
+    - script: npx deemon --attach npm run _node-build-script build/azure-pipelines/darwin/codesign.js
+      condition: succeededOrFailed()
+      displayName: "Post-job: ✍️ Codesign & Notarize"
 
-      - script: unzip $(Pipeline.Workspace)/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip -d $(Build.ArtifactStagingDirectory)/VSCode-darwin-$(VSCODE_ARCH)
-        displayName: Extract signed app
+    - script: unzip $(Pipeline.Workspace)/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip -d $(Build.ArtifactStagingDirectory)/VSCode-darwin-$(VSCODE_ARCH)
+      displayName: Extract signed app
 
-      - script: |
-          set -e
-          APP_ROOT="$(Build.ArtifactStagingDirectory)/VSCode-darwin-$(VSCODE_ARCH)"
-          APP_NAME="`ls $APP_ROOT | head -n 1`"
-          APP_PATH="$APP_ROOT/$APP_NAME"
-          codesign -dv --deep --verbose=4 "$APP_PATH"
-          "$APP_PATH/Contents/Resources/app/bin/code" --export-default-configuration=.build
-        displayName: Verify signature
+    - script: |
+        set -e
+        APP_ROOT="$(Build.ArtifactStagingDirectory)/VSCode-darwin-$(VSCODE_ARCH)"
+        APP_NAME="`ls $APP_ROOT | head -n 1`"
+        APP_PATH="$APP_ROOT/$APP_NAME"
+        codesign -dv --deep --verbose=4 "$APP_PATH"
+        "$APP_PATH/Contents/Resources/app/bin/code" --export-default-configuration=.build
+      displayName: Verify signature
 
-      - script: |
-          set -e
+    - script: |
+        set -e
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/vscode_client_darwin_$(VSCODE_ARCH)_archive
-          if [ "$VSCODE_ARCH" == "x64" ]; then
-            # Use legacy name for x64 builds
-            mv $(CLIENT_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin.zip
-          else
-            mv $(CLIENT_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip
-          fi
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/vscode_client_darwin_$(VSCODE_ARCH)_archive
+        if [ "$VSCODE_ARCH" == "x64" ]; then
+          # Use legacy name for x64 builds
+          mv $(CLIENT_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin.zip
+        else
+          mv $(CLIENT_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_client_darwin_$(VSCODE_ARCH)_archive/VSCode-darwin-$(VSCODE_ARCH).zip
+        fi
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/vscode_server_darwin_$(VSCODE_ARCH)_archive
-          mv $(SERVER_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_server_darwin_$(VSCODE_ARCH)_archive/vscode-server-darwin-$(VSCODE_ARCH).zip
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/vscode_server_darwin_$(VSCODE_ARCH)_archive
+        mv $(SERVER_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_server_darwin_$(VSCODE_ARCH)_archive/vscode-server-darwin-$(VSCODE_ARCH).zip
 
-          mkdir -p $(Build.ArtifactStagingDirectory)/out/vscode_web_darwin_$(VSCODE_ARCH)_archive
-          mv $(WEB_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_web_darwin_$(VSCODE_ARCH)_archive/vscode-server-darwin-$(VSCODE_ARCH)-web.zip
-        displayName: Move artifacts to out directory
+        mkdir -p $(Build.ArtifactStagingDirectory)/out/vscode_web_darwin_$(VSCODE_ARCH)_archive
+        mv $(WEB_PATH) $(Build.ArtifactStagingDirectory)/out/vscode_web_darwin_$(VSCODE_ARCH)_archive/vscode-server-darwin-$(VSCODE_ARCH)-web.zip
+      displayName: Move artifacts to out directory

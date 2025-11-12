@@ -98,7 +98,7 @@ jobs:
           echo "npm i failed after 12 attempts"
           exit 1
         env:
-          npm_command: "install --ignore-scripts"
+          npm_command: 'install --ignore-scripts'
           ELECTRON_SKIP_BINARY_DOWNLOAD: 1
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
           GITHUB_TOKEN: "$(github-distro-mixin-password)"

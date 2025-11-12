@@ -110,7 +110,7 @@ jobs:
         retryCountOnTaskFailure: 3
 
       - ${{ if and(in(parameters.VSCODE_QUALITY, 'insider', 'exploration'), eq(parameters.VSCODE_SCHEDULEDBUILD, true)) }}:
-          - script: npm run _node-build-script build/azure-pipelines/common/releaseBuild.js
-            env:
-              PUBLISH_AUTH_TOKENS: "$(PUBLISH_AUTH_TOKENS)"
-            displayName: Release build
+        - script: npm run _node-build-script build/azure-pipelines/common/releaseBuild.js
+          env:
+            PUBLISH_AUTH_TOKENS: "$(PUBLISH_AUTH_TOKENS)"
+          displayName: Release build

@@ -116,7 +116,7 @@ steps:
     displayName: List files
 
   - task: CopyFiles@2
-    displayName: "Collect Symbols for API Scan"
+    displayName: 'Collect Symbols for API Scan'
     inputs:
       SourceFolder: $(Agent.BuildDirectory)
       Contents: 'scanbin\**\*.pdb'
@@ -127,12 +127,12 @@ steps:
   - task: APIScan@2
     inputs:
       softwareFolder: $(Agent.BuildDirectory)\scanbin
-      softwareName: "vscode-client"
-      softwareVersionNum: "1"
+      softwareName: 'vscode-client'
+      softwareVersionNum: '1'
       symbolsFolder: 'srv*https://symweb.azurefd.net;$(Agent.BuildDirectory)\symbols'
       isLargeApp: false
-      toolVersion: "Latest"
-      azureSubscription: "vscode-apiscan"
+      toolVersion: 'Latest'
+      azureSubscription: 'vscode-apiscan'
     displayName: Run ApiScan
     condition: succeeded()
     env:
@@ -152,4 +152,4 @@ steps:
     continueOnError: true
     inputs:
       GdnPublishTsaOnboard: true
-      GdnPublishTsaConfigFile: "$(Build.SourcesDirectory)/build/azure-pipelines/config/tsaoptions.json"
+      GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)/build/azure-pipelines/config/tsaoptions.json'
