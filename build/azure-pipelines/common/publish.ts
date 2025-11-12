@@ -10,7 +10,7 @@ import type { ReadableStream } from 'stream/web';
 import { pipeline } from 'node:stream/promises';
 import yauzl from 'yauzl';
 import crypto from 'crypto';
-import { retry } from './retry';
+import { retry } from './retry.js';
 import { CosmosClient } from '@azure/cosmos';
 import cp from 'child_process';
 import os from 'os';

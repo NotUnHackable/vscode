@@ -64,7 +64,7 @@
   },
   "type": "module",
   "scripts": {
-    "copy-policy-dto": "node lib/policies/copyPolicyDto.js",
+    "copy-policy-dto": "node runBuildScript.js lib/policies/copyPolicyDto.js",
     "prebuild-ts": "npm run copy-policy-dto",
     "build-ts": "cd .. && npx tsgo --project build/tsconfig.build.json",
     "compile": "npm run build-ts",

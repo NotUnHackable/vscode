@@ -3,6 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import { spawn } from 'child_process';
+import * as path from 'path';
 
 const filename = process.argv[2];
 if (!filename) {
@@ -13,7 +14,7 @@ if (!filename) {
 const child = spawn('node', ['--disable-warning=ExperimentalWarning', '--loader', 'ts-node/esm', filename, ...process.argv.slice(3)], {
 	env: {
 		...process.env,
-		TS_NODE_PROJECT: 'build/tsconfig.json'
+		TS_NODE_PROJECT: path.join(import.meta.dirname, 'tsconfig.json')
 	},
 	stdio: 'inherit'
 });
