@@ -94,7 +94,7 @@ function bundleESMTask(opts: IBundleESMTaskOpts): NodeJS.ReadWriteStream {
 
 			// TS Boilerplate
 			if (!opts.skipTSBoilerplateRemoval?.(entryPoint.name)) {
-				const tslibPath = path.join(require.resolve('tslib'), '../tslib.es6.js');
+				const tslibPath = path.join(new URL(import.meta.resolve('tslib')).pathname, '../tslib.es6.js');
 				banner.js += await fs.promises.readFile(tslibPath, 'utf-8');
 			}
 
