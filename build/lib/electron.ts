@@ -7,8 +7,8 @@ import fs from 'fs';
 import path from 'path';
 import vfs from 'vinyl-fs';
 import filter from 'gulp-filter';
-import * as util from './util';
-import { getVersion } from './getVersion';
+import * as util from './util.js';
+import { getVersion } from './getVersion.js';
 
 type DarwinDocumentSuffix = 'document' | 'script' | 'file' | 'source code';
 type DarwinDocumentType = {
@@ -24,7 +24,7 @@ function isDocumentSuffix(str?: string): str is DarwinDocumentSuffix {
 	return str === 'document' || str === 'script' || str === 'file' || str === 'source code';
 }
 
-const root = path.dirname(path.dirname(__dirname));
+const root = path.dirname(path.dirname(import.meta.dirname));
 const product = JSON.parse(fs.readFileSync(path.join(root, 'product.json'), 'utf8'));
 const commit = getVersion(root);
 
@@ -236,7 +236,7 @@ async function main(arch: string = process.arch): Promise<void> {
 	}
 }
 
-if (require.main === module) {
+if (import.meta.filename === process.argv[1]) {
 	main(process.argv[2]).catch(err => {
 		console.error(err);
 		process.exit(1);

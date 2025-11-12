@@ -11,7 +11,7 @@ import debug from 'debug';
 import extract from 'extract-zip';
 import { downloadArtifact } from '@electron/get';
 
-const root = path.dirname(path.dirname(__dirname));
+const root = path.dirname(path.dirname(import.meta.dirname));
 
 const d = debug('libcxx-fetcher');
 

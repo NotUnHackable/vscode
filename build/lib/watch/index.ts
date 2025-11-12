@@ -3,8 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 const watch = process.platform === 'win32' ? require('./watch-win32') : require('vscode-gulp-watch');
 
-module.exports = function () {
-	return watch.apply(null, arguments);
-};
+export default function (...args: any[]): ReturnType<typeof watch> {
+	return watch.apply(null, args);
+}

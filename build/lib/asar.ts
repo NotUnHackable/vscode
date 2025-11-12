@@ -5,10 +5,12 @@
 
 import path from 'path';
 import es from 'event-stream';
-const pickle = require('chromium-pickle-js');
-const Filesystem = <typeof AsarFilesystem>require('asar/lib/filesystem');
+import pickle from 'chromium-pickle-js';
+import FilesystemImport from 'asar/lib/filesystem.js';
 import VinylFile from 'vinyl';
 import minimatch from 'minimatch';
+
+const Filesystem = FilesystemImport as AsarFilesystem;
 
 declare class AsarFilesystem {
 	readonly header: unknown;

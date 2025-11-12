@@ -10,7 +10,7 @@ import { spawn } from 'child_process';
 import { promises as fs } from 'fs';
 
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = path.resolve(import.meta.dirname, '..', '..');
 
 function runProcess(command: string, args: ReadonlyArray<string> = []) {
 	return new Promise<void>((resolve, reject) => {
@@ -55,7 +55,7 @@ async function main() {
 	await getBuiltInExtensions();
 }
 
-if (require.main === module) {
+if (import.meta.filename === process.argv[1]) {
 	main().catch(err => {
 		console.error(err);
 		process.exit(1);

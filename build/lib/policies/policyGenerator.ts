@@ -6,15 +6,15 @@
 import minimist from 'minimist';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { CategoryDto, ExportedPolicyDataDto } from './policyDto';
+import { CategoryDto, ExportedPolicyDataDto } from './policyDto.js';
 import * as JSONC from 'jsonc-parser';
-import { BooleanPolicy } from './booleanPolicy';
-import { NumberPolicy } from './numberPolicy';
-import { ObjectPolicy } from './objectPolicy';
-import { StringEnumPolicy } from './stringEnumPolicy';
-import { StringPolicy } from './stringPolicy';
-import { Version, LanguageTranslations, Policy, Translations, Languages, ProductJson } from './types';
-import { renderGP, renderJsonPolicies, renderMacOSPolicy } from './render';
+import { BooleanPolicy } from './booleanPolicy.js';
+import { NumberPolicy } from './numberPolicy.js';
+import { ObjectPolicy } from './objectPolicy.js';
+import { StringEnumPolicy } from './stringEnumPolicy.js';
+import { StringPolicy } from './stringPolicy.js';
+import { Version, LanguageTranslations, Policy, Translations, Languages, ProductJson } from './types.js';
+import { renderGP, renderJsonPolicies, renderMacOSPolicy } from './render.js';
 
 const product = require('../../../product.json') as ProductJson;
 const packageJson = require('../../../package.json');
@@ -236,7 +236,7 @@ async function main() {
 	}
 }
 
-if (require.main === module) {
+if (import.meta.filename === process.argv[1]) {
 	main().catch(err => {
 		console.error(err);
 		process.exit(1);

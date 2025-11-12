@@ -62,7 +62,7 @@
     "workerpool": "^6.4.0",
     "yauzl": "^2.10.0"
   },
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "copy-policy-dto": "node lib/policies/copyPolicyDto.js",
     "prebuild-ts": "npm run copy-policy-dto",
