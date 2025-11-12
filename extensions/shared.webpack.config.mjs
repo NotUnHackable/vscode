@@ -42,18 +42,21 @@ function withNodeDefaults(/**@type WebpackConfig & { context: string }*/extConfi
 			rules: [{
 				test: /\.ts$/,
 				exclude: /node_modules/,
-				use: [{
-					// configure TypeScript loader:
-					// * enable sources maps for end-to-end source maps
-					loader: 'ts-loader',
-					options: tsLoaderOptions
-				}, {
-					// disable mangling for now, SEE https://github.com/microsoft/vscode/issues/204692
-					// loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
-					options: {
-						configFile: path.join(extConfig.context, 'tsconfig.json')
+				use: [
+					{
+						// configure TypeScript loader:
+						// * enable sources maps for end-to-end source maps
+						loader: 'ts-loader',
+						options: tsLoaderOptions
 					},
-				},]
+					// disable mangling for now, SEE https://github.com/microsoft/vscode/issues/204692
+					// {
+					// 	loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
+					// 	options: {
+					// 		configFile: path.join(extConfig.context, 'tsconfig.json')
+					// 	},
+					// },
+				]
 			}]
 		},
 		externals: {
@@ -136,13 +139,13 @@ function withBrowserDefaults(/**@type WebpackConfig & { context: string }*/extCo
 							//							...(additionalOptions ? {} : { configFile: additionalOptions.configFile }),
 						}
 					},
-					{
-						// disable mangling for now, SEE https://github.com/microsoft/vscode/issues/204692
-						// loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
-						options: {
-							configFile: path.join(extConfig.context, additionalOptions?.configFile ?? 'tsconfig.json')
-						},
-					},
+					// disable mangling for now, SEE https://github.com/microsoft/vscode/issues/204692
+					// {
+					// 	loader: path.resolve(import.meta.dirname, 'mangle-loader.js'),
+					// 	options: {
+					// 		configFile: path.join(extConfig.context, additionalOptions?.configFile ?? 'tsconfig.json')
+					// 	},
+					// },
 				]
 			}, {
 				test: /\.wasm$/,
