@@ -55,7 +55,7 @@
     "compile-web": "npm run _gulp compile-web",
     "watch-web": "npm run _gulp watch-web",
     "watch-cli": "npm run _gulp watch-cli",
-    "eslint": " build/eslint.js",
+    "eslint": "npm run _node-build-script build/eslint.js",
     "stylelint": "npm run _node-build-script build/stylelint.js",
     "playwright-install": "npm exec playwright install",
     "compile-build": "npm run _gulp compile-build-with-mangling",

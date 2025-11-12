@@ -6,14 +6,14 @@
 import assert from 'assert';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { ExportedPolicyDataDto, CategoryDto } from '../policies/policyDto';
-import { BooleanPolicy } from '../policies/booleanPolicy';
-import { NumberPolicy } from '../policies/numberPolicy';
-import { ObjectPolicy } from '../policies/objectPolicy';
-import { StringEnumPolicy } from '../policies/stringEnumPolicy';
-import { StringPolicy } from '../policies/stringPolicy';
-import { Policy, ProductJson } from '../policies/types';
-import { renderGP, renderMacOSPolicy, renderJsonPolicies } from '../policies/render';
+import { ExportedPolicyDataDto, CategoryDto } from '../policies/policyDto.js';
+import { BooleanPolicy } from '../policies/booleanPolicy.js';
+import { NumberPolicy } from '../policies/numberPolicy.js';
+import { ObjectPolicy } from '../policies/objectPolicy.js';
+import { StringEnumPolicy } from '../policies/stringEnumPolicy.js';
+import { StringPolicy } from '../policies/stringPolicy.js';
+import { Policy, ProductJson } from '../policies/types.js';
+import { renderGP, renderMacOSPolicy, renderJsonPolicies } from '../policies/render.js';
 
 const PolicyTypes = [
 	BooleanPolicy,

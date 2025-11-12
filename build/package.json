@@ -70,7 +70,7 @@
     "compile": "npm run build-ts",
     "watch": "npm run build-ts -- --watch",
     "npmCheckJs": "npm run build-ts -- --noEmit",
-    "test": "npx mocha --ui tdd 'lib/**/*.test.js'"
+    "test": "NODE_OPTIONS='--no-warnings --loader ts-node/esm' mocha --ui tdd 'lib/**/*.test.ts'"
   },
   "optionalDependencies": {
     "tree-sitter-typescript": "^0.23.2",
