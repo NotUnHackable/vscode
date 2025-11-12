@@ -70,7 +70,7 @@
     "extensions-ci-pr": "npm run _gulp extensions-ci-pr",
     "perf": "node scripts/code-perf.js",
     "update-build-ts-version": "npm install -D typescript@next && npm install -D @typescript/native-preview && (cd build && npm run compile)",
-    "_node-build-script": "TS_NODE_PROJECT=\"build/tsconfig.json\" node --loader ts-node/esm",
+    "_node-build-script": "node build/runBuildScript.js",
     "_gulp": "npm run _node-build-script ./node_modules/gulp/bin/gulp.js",
     "_gulp-big": "npm run _node-build-script --max-old-space-size=8192 ./node_modules/gulp/bin/gulp.js"
   },

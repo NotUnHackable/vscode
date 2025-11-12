@@ -1,0 +1,23 @@
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { spawn } from 'child_process';
+
+const filename = process.argv[2];
+if (!filename) {
+	console.error('Error: Please provide a filename as an argument');
+	process.exit(1);
+}
+
+const child = spawn('node', ['--loader', 'ts-node/esm', filename, ...process.argv.slice(3)], {
+	env: {
+		...process.env,
+		TS_NODE_PROJECT: 'build/tsconfig.json'
+	},
+	stdio: 'inherit'
+});
+
+child.on('exit', (code) => {
+	process.exit(code || 0);
+});
