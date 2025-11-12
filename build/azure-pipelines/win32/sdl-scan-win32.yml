@@ -26,7 +26,7 @@ steps:
       KeyVaultName: vscode-build-secrets
       SecretsFilter: "github-distro-mixin-password"
 
-  - powershell: node build/setup-npm-registry.js $env:NPM_REGISTRY
+  - powershell: npm _run-build-script build/setup-npm-registry.js $env:NPM_REGISTRY
     condition: and(succeeded(), ne(variables['NPM_REGISTRY'], 'none'))
     displayName: Setup NPM Registry
 
@@ -92,10 +92,10 @@ steps:
     retryCountOnTaskFailure: 5
     displayName: Install dependencies
 
-  - script: node build/azure-pipelines/distro/mixin-npm
+  - script: npm _run-build-script build/azure-pipelines/distro/mixin-npm
     displayName: Mixin distro node modules
 
-  - script: node build/azure-pipelines/distro/mixin-quality
+  - script: npm _run-build-script build/azure-pipelines/distro/mixin-quality
     displayName: Mixin distro quality
     env:
       VSCODE_QUALITY: ${{ parameters.VSCODE_QUALITY }}
@@ -116,7 +116,7 @@ steps:
     displayName: List files
 
   - task: CopyFiles@2
-    displayName: 'Collect Symbols for API Scan'
+    displayName: "Collect Symbols for API Scan"
     inputs:
       SourceFolder: $(Agent.BuildDirectory)
       Contents: 'scanbin\**\*.pdb'
@@ -127,12 +127,12 @@ steps:
   - task: APIScan@2
     inputs:
       softwareFolder: $(Agent.BuildDirectory)\scanbin
-      softwareName: 'vscode-client'
-      softwareVersionNum: '1'
+      softwareName: "vscode-client"
+      softwareVersionNum: "1"
       symbolsFolder: 'srv*https://symweb.azurefd.net;$(Agent.BuildDirectory)\symbols'
       isLargeApp: false
-      toolVersion: 'Latest'
-      azureSubscription: 'vscode-apiscan'
+      toolVersion: "Latest"
+      azureSubscription: "vscode-apiscan"
     displayName: Run ApiScan
     condition: succeeded()
     env:
@@ -152,4 +152,4 @@ steps:
     continueOnError: true
     inputs:
       GdnPublishTsaOnboard: true
-      GdnPublishTsaConfigFile: '$(Build.SourcesDirectory)/build/azure-pipelines/config/tsaoptions.json'
+      GdnPublishTsaConfigFile: "$(Build.SourcesDirectory)/build/azure-pipelines/config/tsaoptions.json"

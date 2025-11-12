@@ -16,37 +16,37 @@ jobs:
       outputParentDirectory: $(Build.ArtifactStagingDirectory)/out
       outputs:
         - ${{ if eq(parameters.VSCODE_ARCH, 'x64') }}:
-          # keep legacy name
-          - output: pipelineArtifact
-            targetPath: $(Build.ArtifactStagingDirectory)/out/server/vscode-server-linux-alpine.tar.gz
-            artifactName: vscode_server_linux_alpine_archive-unsigned
-            displayName: Publish x64 server archive
-            sbomBuildDropPath: $(SERVER_DIR_PATH)
-            sbomPackageName: "VS Code Alpine x64 Server"
-            sbomPackageVersion: $(Build.SourceVersion)
-          # keep legacy name
-          - output: pipelineArtifact
-            targetPath: $(Build.ArtifactStagingDirectory)/out/web/vscode-server-linux-alpine-web.tar.gz
-            artifactName: vscode_web_linux_alpine_archive-unsigned
-            displayName: Publish x64 web server archive
-            sbomBuildDropPath: $(WEB_DIR_PATH)
-            sbomPackageName: "VS Code Alpine x64 Web"
-            sbomPackageVersion: $(Build.SourceVersion)
+            # keep legacy name
+            - output: pipelineArtifact
+              targetPath: $(Build.ArtifactStagingDirectory)/out/server/vscode-server-linux-alpine.tar.gz
+              artifactName: vscode_server_linux_alpine_archive-unsigned
+              displayName: Publish x64 server archive
+              sbomBuildDropPath: $(SERVER_DIR_PATH)
+              sbomPackageName: "VS Code Alpine x64 Server"
+              sbomPackageVersion: $(Build.SourceVersion)
+            # keep legacy name
+            - output: pipelineArtifact
+              targetPath: $(Build.ArtifactStagingDirectory)/out/web/vscode-server-linux-alpine-web.tar.gz
+              artifactName: vscode_web_linux_alpine_archive-unsigned
+              displayName: Publish x64 web server archive
+              sbomBuildDropPath: $(WEB_DIR_PATH)
+              sbomPackageName: "VS Code Alpine x64 Web"
+              sbomPackageVersion: $(Build.SourceVersion)
         - ${{ if ne(parameters.VSCODE_ARCH, 'x64') }}:
-          - output: pipelineArtifact
-            targetPath: $(Build.ArtifactStagingDirectory)/out/server/vscode-server-alpine-$(VSCODE_ARCH).tar.gz
-            artifactName: vscode_server_alpine_$(VSCODE_ARCH)_archive-unsigned
-            displayName: Publish server archive
-            sbomBuildDropPath: $(SERVER_DIR_PATH)
-            sbomPackageName: "VS Code Alpine $(VSCODE_ARCH) Server"
-            sbomPackageVersion: $(Build.SourceVersion)
-          - output: pipelineArtifact
-            targetPath: $(Build.ArtifactStagingDirectory)/out/web/vscode-server-alpine-$(VSCODE_ARCH)-web.tar.gz
-            artifactName: vscode_web_alpine_$(VSCODE_ARCH)_archive-unsigned
-            displayName: Publish web server archive
-            sbomBuildDropPath: $(WEB_DIR_PATH)
-            sbomPackageName: "VS Code Alpine $(VSCODE_ARCH) Web"
-            sbomPackageVersion: $(Build.SourceVersion)
+            - output: pipelineArtifact
+              targetPath: $(Build.ArtifactStagingDirectory)/out/server/vscode-server-alpine-$(VSCODE_ARCH).tar.gz
+              artifactName: vscode_server_alpine_$(VSCODE_ARCH)_archive-unsigned
+              displayName: Publish server archive
+              sbomBuildDropPath: $(SERVER_DIR_PATH)
+              sbomPackageName: "VS Code Alpine $(VSCODE_ARCH) Server"
+              sbomPackageVersion: $(Build.SourceVersion)
+            - output: pipelineArtifact
+              targetPath: $(Build.ArtifactStagingDirectory)/out/web/vscode-server-alpine-$(VSCODE_ARCH)-web.tar.gz
+              artifactName: vscode_web_alpine_$(VSCODE_ARCH)_archive-unsigned
+              displayName: Publish web server archive
+              sbomBuildDropPath: $(WEB_DIR_PATH)
+              sbomPackageName: "VS Code Alpine $(VSCODE_ARCH) Web"
+              sbomPackageVersion: $(Build.SourceVersion)
     steps:
       - template: ../common/checkout.yml@self
 
@@ -73,11 +73,11 @@ jobs:
       - script: tar -xzf $(Build.ArtifactStagingDirectory)/compilation.tar.gz
         displayName: Extract compilation output
 
-      - script: node build/setup-npm-registry.js $NPM_REGISTRY
+      - script: npm _run-build-script build/setup-npm-registry.js $NPM_REGISTRY
         condition: and(succeeded(), ne(variables['NPM_REGISTRY'], 'none'))
         displayName: Setup NPM Registry
 
-      - script: mkdir -p .build && node build/azure-pipelines/common/computeNodeModulesCacheKey.js alpine $VSCODE_ARCH $(node -p process.arch) > .build/packagelockhash
+      - script: mkdir -p .build && npm _run-build-script build/azure-pipelines/common/computeNodeModulesCacheKey.js alpine $VSCODE_ARCH $(node -p process.arch) > .build/packagelockhash
         displayName: Prepare node_modules cache key
 
       - task: Cache@2
@@ -156,19 +156,19 @@ jobs:
         displayName: Install dependencies
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
-      - script: node build/azure-pipelines/distro/mixin-npm
+      - script: npm _run-build-script build/azure-pipelines/distro/mixin-npm
         displayName: Mixin distro node modules
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
       - script: |
           set -e
-          node build/azure-pipelines/common/listNodeModules.js .build/node_modules_list.txt
+          npm _run-build-script build/azure-pipelines/common/listNodeModules.js .build/node_modules_list.txt
           mkdir -p .build/node_modules_cache
           tar -czf .build/node_modules_cache/cache.tgz --files-from .build/node_modules_list.txt
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
         displayName: Create node_modules archive
 
-      - script: node build/azure-pipelines/distro/mixin-quality
+      - script: npm _run-build-script build/azure-pipelines/distro/mixin-quality
         displayName: Mixin distro quality
 
       - template: ../common/install-builtin-extensions.yml@self
