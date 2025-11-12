@@ -1,6 +1,9 @@
 steps:
   - template: ../distro/download-distro.yml@self
 
+  - script: npm install ts-node --ignore-scripts
+    displayName: Install ts-node
+
   - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality.js
     displayName: Mixin distro quality
 
