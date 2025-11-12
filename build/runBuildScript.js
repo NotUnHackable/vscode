@@ -10,7 +10,7 @@ if (!filename) {
 	process.exit(1);
 }
 
-const child = spawn('node', ['--loader', 'ts-node/esm', filename, ...process.argv.slice(3)], {
+const child = spawn('node', ['--disable-warning=ExperimentalWarning', '--loader', 'ts-node/esm', filename, ...process.argv.slice(3)], {
 	env: {
 		...process.env,
 		TS_NODE_PROJECT: 'build/tsconfig.json'
