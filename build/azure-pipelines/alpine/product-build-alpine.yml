@@ -156,7 +156,7 @@ jobs:
         displayName: Install dependencies
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
-      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-npm
+      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-npm.js
         displayName: Mixin distro node modules
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
@@ -168,7 +168,7 @@ jobs:
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
         displayName: Create node_modules archive
 
-      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality
+      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality.js
         displayName: Mixin distro quality
 
       - template: ../common/install-builtin-extensions.yml@self

@@ -149,7 +149,7 @@ steps:
     displayName: Install dependencies
     condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
-  - script: npm run _node-build-script build/azure-pipelines/distro/mixin-npm
+  - script: npm run _node-build-script build/azure-pipelines/distro/mixin-npm.js
     condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
     displayName: Mixin distro node modules
 
@@ -161,13 +161,13 @@ steps:
     condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
     displayName: Create node_modules archive
 
-  - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality
+  - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality.js
     displayName: Mixin distro quality
 
   - template: ../../common/install-builtin-extensions.yml@self
 
   - ${{ if ne(parameters.VSCODE_CIBUILD, true) }}:
-    - script: npm run _node-build-script build/lib/policies/policyGenerator build/lib/policies/policyData.jsonc linux
+    - script: npm run _node-build-script build/lib/policies/policyGenerator.js build/lib/policies/policyData.jsonc linux
       displayName: Generate policy definitions
       retryCountOnTaskFailure: 3
 

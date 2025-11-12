@@ -81,7 +81,7 @@ jobs:
         displayName: Install dependencies
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
-      - powershell: npm run _node-build-script build/azure-pipelines/distro/mixin-npm
+      - powershell: npm run _node-build-script build/azure-pipelines/distro/mixin-npm.js
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
         displayName: Mixin distro node modules
 

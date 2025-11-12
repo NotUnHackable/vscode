@@ -80,7 +80,7 @@ jobs:
         artifact: unsigned_vscode_client_darwin_arm64_archive
         displayName: Download arm64 artifact
 
-      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality
+      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality.js
         displayName: Mixin distro quality
 
       - script: |
@@ -132,12 +132,12 @@ jobs:
           Pattern: noop
         displayName: 'Install ESRP Tooling'
 
-      - script: npm run _node-build-script build/azure-pipelines/common/sign $(Agent.RootDirectory)/_tasks/EsrpCodeSigning_*/*/net6.0/esrpcli.dll sign-darwin $(Pipeline.Workspace)/unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive VSCode-darwin-$(VSCODE_ARCH).zip
+      - script: npm run _node-build-script build/azure-pipelines/common/sign.js $(Agent.RootDirectory)/_tasks/EsrpCodeSigning_*/*/net6.0/esrpcli.dll sign-darwin $(Pipeline.Workspace)/unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive VSCode-darwin-$(VSCODE_ARCH).zip
         env:
           SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         displayName: ✍️ Codesign
 
-      - script: npm run _node-build-script build/azure-pipelines/common/sign $(Agent.RootDirectory)/_tasks/EsrpCodeSigning_*/*/net6.0/esrpcli.dll notarize-darwin $(Pipeline.Workspace)/unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive VSCode-darwin-$(VSCODE_ARCH).zip
+      - script: npm run _node-build-script build/azure-pipelines/common/sign.js $(Agent.RootDirectory)/_tasks/EsrpCodeSigning_*/*/net6.0/esrpcli.dll notarize-darwin $(Pipeline.Workspace)/unsigned_vscode_client_darwin_$(VSCODE_ARCH)_archive VSCode-darwin-$(VSCODE_ARCH).zip
         env:
           SYSTEM_ACCESSTOKEN: $(System.AccessToken)
         displayName: ✍️ Notarize

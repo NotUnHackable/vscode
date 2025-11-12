@@ -81,7 +81,7 @@ jobs:
         displayName: Install dependencies
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
 
-      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-npm
+      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-npm.js
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
         displayName: Mixin distro node modules
 
@@ -93,7 +93,7 @@ jobs:
         condition: and(succeeded(), ne(variables.NODE_MODULES_RESTORED, 'true'))
         displayName: Create node_modules archive
 
-      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality
+      - script: npm run _node-build-script build/azure-pipelines/distro/mixin-quality.js
         displayName: Mixin distro quality
 
       - template: common/install-builtin-extensions.yml@self
@@ -135,7 +135,7 @@ jobs:
           AZURE_TENANT_ID="$(AZURE_TENANT_ID)" \
           AZURE_CLIENT_ID="$(AZURE_CLIENT_ID)" \
           AZURE_ID_TOKEN="$(AZURE_ID_TOKEN)" \
-            npm run _node-build-script build/azure-pipelines/upload-sourcemaps
+            npm run _node-build-script build/azure-pipelines/upload-sourcemaps.js
         displayName: Upload sourcemaps to Azure
 
       - script: ./build/azure-pipelines/common/extract-telemetry.sh
