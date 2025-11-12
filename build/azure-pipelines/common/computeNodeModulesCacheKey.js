@@ -6,9 +6,9 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-const { dirs } = require('../../npm/dirs');
+import { dirs } from '../../npm/dirs.js';
 
-const ROOT = path.join(__dirname, '../../../');
+const ROOT = path.join(import.meta.dirname, '../../../');
 
 const shasum = crypto.createHash('sha256');
 
